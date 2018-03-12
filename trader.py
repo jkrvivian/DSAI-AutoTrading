@@ -13,16 +13,21 @@ class Trader():
 
     def train(self, training_data):
         y = []
-        for i in range(0, len(training_data)-1):
-            open_p = training_data[i][0]
-            close_p = training_data[i + 1][0]
-            if (close_p - open_p) > 0: 
-                y.append(-1)
-            elif close_p - open_p < 0:
+        td = [list([training_data[0][0], training_data[0][1], training_data[0][2]])]
+        
+        for i in range(0, len(training_data) - 1):
+            ToDayOpen = training_data[i][0]
+            nextOpen = training_data[i + 1][0]
+            td.append(list([training_data[i + 1][0], training_data[i + 1][1], training_data[i + 1][2]]))
+
+            if (nextOpen - ToDayOpen) > 0: 
                 y.append(1)
+            elif (nextOpen - ToDayOpen) < 0:
+                y.append(-1)
             else:
                 y.append(0)
-        self.clf.fit(training_data[0:-1], y)
+
+        self.clf.fit(td[0:-1], y)
         return
     
     def predict_action(self, test_datum):
@@ -93,14 +98,15 @@ if __name__ == '__main__':
     testing_data = load_data(args.testing)
     testing_last_data = testing_data.pop()
     
+    trader_rbf = Trader("rbf")
+    trader_rbf.train(training_data)
+
     # Start to predict
     with open(args.output, 'w') as output_file:
         for row in testing_data:
-            action = trader_rbf.predict_action(row)
-            action = trader_lin.predict_action(row)
+            action = trader_rbf.predict_action([row[0], row[1], row[2]])
             output_file.write(action)
             output_file.write("\n")
 
 
-    print('rbf: ', trader_rbf.get_profit(testing_last_data))
-    print('linear: ', trader_lin.get_profit(testing_last_data))
+    print('profit: ', trader_rbf.get_profit(testing_last_data))
