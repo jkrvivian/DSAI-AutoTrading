@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class Trader():
-    def __init__(self, kernel):
-        self.clf = SVC(kernel=kernel)
+    def __init__(self):
+        self.clf = SVC(kernel="rbf", C=1, gamma=10)
         self.unit = 0
         self.money = 0
         self.pre_act = 0
@@ -20,9 +20,9 @@ class Trader():
             nextOpen = training_data[i + 1][0]
             td.append(list([training_data[i + 1][0], training_data[i + 1][1], training_data[i + 1][2]]))
 
-            if (nextOpen - ToDayOpen) > 0: 
+            if (nextOpen - ToDayOpen) > ToDayOpen * 0.005: 
                 y.append(1)
-            elif (nextOpen - ToDayOpen) < 0:
+            elif ((nextOpen - ToDayOpen) < 0) and ((ToDayOpen - nextOpen) < ToDayOpen * 0.005):
                 y.append(-1)
             else:
                 y.append(0)
@@ -57,9 +57,9 @@ class Trader():
             self.money += testing_last_data[0]
 
         if self.pre_act + self.unit == 1:
-            self.money += testing_last_data[1]
+            self.money += testing_last_data[3]
         elif self.unit + self.pre_act == -1:
-            self.money -= testing_last_data[1]
+            self.money -= testing_last_data[3]
 
         return self.money
 
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     testing_data = load_data(args.testing)
     testing_last_data = testing_data.pop()
     
-    trader_rbf = Trader("rbf")
+    trader_rbf = Trader()
     trader_rbf.train(training_data)
 
     # Start to predict
