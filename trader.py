@@ -109,4 +109,4 @@ if __name__ == '__main__':
             output_file.write("\n")
 
 
-    print('profit: ', trader_rbf.get_profit(testing_last_data))
+    #print('profit: ', trader_rbf.get_profit(testing_last_data))
